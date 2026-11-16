@@ -132,6 +132,31 @@
     .context-card h3 { margin-bottom: 5px; }
     .context-card p { margin: 0; color: #6f6f6f; font-size: 16px; line-height: 1.4; }
     .context-tip { margin-top: 13px; padding: 11px 13px; border-radius: 11px; background: rgba(232,231,229,.75); color: #656565; font-size: 13px; line-height: 1.5; }
+    .quote-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .quote-card { position: relative; min-width: 0; padding: 14px 15px 14px 50px; border: 1px solid rgba(40,40,40,.18); border-radius: 13px; background: var(--card); }
+    .quote-number { position: absolute; left: 13px; top: 14px; width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid rgba(40,40,40,.13); border-radius: 8px; background: #f0efed; color: #555; font-size: 11px; font-weight: 700; }
+    .quote-card blockquote { margin: 0 0 7px; color: #292929; font-family: Georgia, serif; font-size: 18px; line-height: 1.45; }
+    .quote-meta { margin: 0 0 7px; color: #777; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .quote-picker { position: relative; z-index: 4; width: min(390px, 100%); margin: 13px 0 16px; }
+    .quote-picker-trigger { width: 100%; min-height: 58px; padding: 7px 13px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(40,40,40,.16); border-radius: 15px; background: rgba(255,255,255,.94); color: #292929; text-align: left; cursor: pointer; box-shadow: 0 4px 12px rgba(30,30,30,.045); transition: border-color .16s ease, box-shadow .16s ease; }
+    .quote-picker-trigger:hover, .quote-picker.open .quote-picker-trigger { border-color: rgba(40,40,40,.34); box-shadow: 0 8px 22px rgba(30,30,30,.1); }
+    .quote-picker-number, .quote-option-number { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 11px; background: #eeedeb; color: #444; font-size: 12px; font-weight: 750; }
+    .quote-picker-current { display: flex; flex: 1; flex-direction: column; gap: 2px; }
+    .quote-picker-current small, .quote-stave-option small { color: #85827d; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+    .quote-picker-current strong { font-size: 14px; font-weight: 700; }
+    .quote-picker-trigger svg { width: 18px; height: 18px; color: #777; transition: transform .17s ease; }
+    .quote-picker.open .quote-picker-trigger svg { transform: rotate(180deg); }
+    .quote-picker-menu { position: absolute; top: calc(100% + 7px); left: 0; right: 0; padding: 6px; border: 1px solid rgba(40,40,40,.13); border-radius: 15px; background: rgba(255,255,255,.98); box-shadow: 0 16px 35px rgba(20,20,20,.15); transform-origin: top; animation: quote-pop .14s ease-out; }
+    .quote-picker-menu[hidden] { display: none; }
+    @keyframes quote-pop { from { opacity: 0; transform: translateY(-4px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .quote-stave-option { width: 100%; min-height: 49px; padding: 6px 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 10px; background: transparent; color: #333; text-align: left; cursor: pointer; }
+    .quote-stave-option:hover, .quote-stave-option:focus-visible, .quote-stave-option[aria-selected="true"] { outline: none; background: #f1f0ee; }
+    .quote-stave-option > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+    .quote-stave-option strong { font-size: 13px; }
+    .quote-stave-option small { letter-spacing: 0; text-transform: none; }
+    .quote-option-check { color: #50504d; font-size: 15px; opacity: 0; }
+    .quote-stave-option[aria-selected="true"] .quote-option-check { opacity: 1; }
+    .quote-card p:last-child { margin: 0; color: #666; font-size: 14px; line-height: 1.5; }
     .starter-group, .context-card { border-color: rgba(40,40,40,.2); }
     .context-card + .context-card, .starter-group + .starter-group { position: relative; }
     @media (max-width: 760px) {
@@ -154,6 +179,14 @@
       .marley-card { grid-column: auto; }
       .verb-card { min-height: auto; }
     }
+    /* Let the page itself scroll on iPads and other touch screens. */
+    @media (max-width: 1100px), (pointer: coarse) {
+      html, body { height: auto; min-height: 100%; }
+      body { min-height: 100svh; overflow-x: hidden; overflow-y: auto; display: block; padding: 8px; }
+      .app { width: min(100%, 1000px); height: auto; min-height: calc(100svh - 16px); margin: 0 auto; overflow: visible; }
+      main { flex: 0 0 auto; min-height: 320px; }
+    }
+    @media (max-width: 600px) { .quote-grid { grid-template-columns: 1fr; } .quote-picker { width: 100%; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
 </head>
@@ -179,6 +212,7 @@
           <button class="menu-option" type="button" role="option" data-topic="verbs" aria-selected="false"><span class="option-mark"></span>Analytical verbs</button>
           <button class="menu-option" type="button" role="option" data-topic="starters" aria-selected="false"><span class="option-mark"></span>Sentence starters</button>
           <button class="menu-option" type="button" role="option" data-topic="context" aria-selected="false"><span class="option-mark"></span>Context</button>
+          <button class="menu-option" type="button" role="option" data-topic="quotes" aria-selected="false"><span class="option-mark"></span>Quotes</button>
         </div>
       </div>
     </div>
@@ -227,8 +261,82 @@ const banks = {
     <section class="context-card"><span class="context-index">02</span><div><h3>The Poor Law</h3><p>The 1834 Poor Law Amendment Act made workhouses central to poor relief; Dickens challenges the lack of compassion shown towards people in poverty.</p></div></section>
     <section class="context-card"><span class="context-index">03</span><div><h3>Ignorance and Want</h3><p>Through Ignorance and Want, Dickens warns that neglecting poverty and education harms society as a whole.</p></div></section>
     <section class="context-card"><span class="context-index">04</span><div><h3>Social responsibility</h3><p>By transforming Scrooge, Dickens suggests that people with wealth have a responsibility to help others.</p></div></section>
-  </div><div class="context-tip"><strong>Essay tip:</strong> connect the context to Dickens’ purpose. Explain how the character, event or image supports the point you are making.</div>`
+  </div><div class="context-tip"><strong>Essay tip:</strong> connect the context to Dickens’ purpose. Explain how the character, event or image supports the point you are making.</div>`,
+  quotes: `<h2>A Christmas Carol quotes</h2><p class="section-note">Choose a stave to revise ten quotations in story order. Read across each row from left to right.</p><div class="quote-picker" id="quote-picker">
+    <button class="quote-picker-trigger" type="button" id="quote-picker-trigger" aria-expanded="false" aria-haspopup="listbox" aria-labelledby="quote-picker-label quote-picker-current"><span class="quote-picker-number" id="quote-picker-number">01</span><span class="quote-picker-current"><small id="quote-picker-label">Selected stave</small><strong id="quote-picker-current">Stave One</strong></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7.5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+    <div class="quote-picker-menu" id="quote-picker-menu" role="listbox" aria-label="Choose a stave" hidden>
+      <button type="button" class="quote-stave-option" role="option" data-stave="1" aria-selected="true"><span class="quote-option-number">01</span><span><strong>Stave One</strong><small>The miser</small></span><span class="quote-option-check">✓</span></button>
+      <button type="button" class="quote-stave-option" role="option" data-stave="2" aria-selected="false"><span class="quote-option-number">02</span><span><strong>Stave Two</strong><small>The first spirit</small></span><span class="quote-option-check">✓</span></button>
+      <button type="button" class="quote-stave-option" role="option" data-stave="3" aria-selected="false"><span class="quote-option-number">03</span><span><strong>Stave Three</strong><small>The second spirit</small></span><span class="quote-option-check">✓</span></button>
+      <button type="button" class="quote-stave-option" role="option" data-stave="4" aria-selected="false"><span class="quote-option-number">04</span><span><strong>Stave Four</strong><small>The last spirit</small></span><span class="quote-option-check">✓</span></button>
+      <button type="button" class="quote-stave-option" role="option" data-stave="5" aria-selected="false"><span class="quote-option-number">05</span><span><strong>Stave Five</strong><small>The end of it</small></span><span class="quote-option-check">✓</span></button>
+    </div>
+  </div><div class="quote-grid" id="stave-quote-content" aria-live="polite"></div>`
 };
+
+const quoteSets = {
+  1: [
+    ["Narrator · Scrooge", "a squeezing, wrenching, grasping, scraping, clutching, covetous, old sinner!", "The accumulating verbs make Scrooge’s greed seem relentless. The comic exaggeration invites the reader to judge his selfishness."],
+    ["Narrator · Scrooge", "solitary as an oyster", "The simile presents Scrooge as closed and difficult to reach. An oyster can also hide a pearl, hinting that a better nature may be concealed beneath his hard exterior."],
+    ["Scrooge · to Bob Cratchit", "a poor excuse for picking a man’s pocket every twenty-fifth of December!", "Scrooge treats a paid Christmas holiday as an unfair cost. The irony is that he accuses Bob of taking from him while Dickens exposes Scrooge’s own greed."],
+    ["Scrooge · to Fred", "Bah! Humbug!", "The abrupt exclamation dismisses Christmas as foolish. Its repetition makes Scrooge’s rejection of joy and fellowship memorable."],
+    ["Scrooge · to the charity collectors", "Are there no prisons?", "The rhetorical question reduces help for the poor to punishment. Dickens exposes Scrooge’s lack of compassion and the cruelty of relying on institutions."],
+    ["Scrooge · to the charity collectors", "And the Union workhouses?", "Scrooge treats the workhouse as an adequate answer to poverty. Dickens challenges readers who accept harsh systems instead of offering practical kindness."],
+    ["Scrooge · to the charity collectors", "decrease the surplus population", "The dehumanising phrase treats poor people as excess numbers. Dickens criticises a society that values economic convenience over human life."],
+    ["Narrator · Scrooge’s office", "Darkness is cheap, and Scrooge liked it.", "The present-tense observation turns Scrooge’s penny-pinching into a general habit. Dickens makes his miserliness seem to shape the darkness of his whole world."],
+    ["Marley · to Scrooge", "I wear the chain I forged in life.", "The chain symbolises the consequences Marley created through his choices. “Forged” suggests he built his own burden link by link."],
+    ["Marley · to Scrooge", "Mankind was my business.", "Marley redefines “business” as responsibility for humanity. His regret introduces Dickens’ central argument that compassion matters more than profit." ]
+  ],
+  2: [
+    ["The Ghost of Christmas Past", "I am the Ghost of Christmas Past.", "The spirit’s name makes memory the focus of Scrooge’s first lesson. The calm introduction contrasts with Scrooge’s fear."],
+    ["The Ghost of Christmas Past", "Your past.", "The brief correction makes the lesson personal: Scrooge must confront his own history, not an abstract past."],
+    ["Narrator · Scrooge at school", "A solitary child, neglected by his friends, is left there still.", "The isolated child recalls Scrooge’s loneliness. Dickens helps the reader understand his past without excusing the cruelty he later chooses."],
+    ["Scrooge · remembering his schooldays", "Why, it’s Ali Baba! It’s dear old honest Ali Baba!", "The joyful recognition shows the imaginative worlds that once comforted the lonely child. Memory begins to soften Scrooge."],
+    ["Fan · to young Scrooge", "Come home, dear brother!", "Fan’s affectionate direct address contrasts with Scrooge’s adult isolation and shows that he once received love."],
+    ["Fezziwig · at the warehouse", "No more work to-night. Christmas Eve, Dick. Christmas, Ebenezer!", "Fezziwig’s joyful announcement transforms the workplace into a place of celebration and community."],
+    ["Scrooge · remembering Fezziwig", "He has the power to render us happy or unhappy; to make our service light or burdensome; a pleasure or a toil.", "Scrooge recognises that an employer’s treatment can shape workers’ lives. The reflection prepares him to reconsider his own treatment of Bob."],
+    ["Belle · ending the engagement", "Another idol has displaced me... a golden one.", "The metaphor presents wealth as a false object of worship that has replaced love in Scrooge’s priorities."],
+    ["Belle · explaining Scrooge’s change", "You fear the world too much.", "Belle identifies fear of poverty and social judgement beneath Scrooge’s pursuit of wealth. Her insight makes the breakup feel like the result of his choices."],
+    ["Belle · leaving Scrooge", "May you be happy in the life you have chosen!", "Belle’s farewell makes Scrooge confront the human cost of choosing wealth over affection. The moment helps explain his later regret."]
+  ],
+  3: [
+    ["The Ghost of Christmas Present", "Come in! and know me better, man!", "The welcoming imperative introduces a spirit of openness and connection, sharply contrasting with Scrooge’s guarded nature."],
+    ["Scrooge · ready to learn", "Spirit, conduct me where you will. I went forth last night on compulsion, and learned a lesson which is working now.", "Scrooge openly recognises that Marley’s warning has begun to change him. He approaches the next vision with greater willingness to learn."],
+    ["Narrator · the Cratchit home", "They were not a handsome family; they were not well dressed; their shoes were far from being waterproof; their clothes were scanty", "The repeated negatives emphasise the family’s poverty, while the warm gathering that follows shows their affection is not measured by wealth."],
+    ["Bob Cratchit · proposing a toast", "A Merry Christmas to us all, my dears. God bless us!", "Bob’s inclusive toast conveys warmth and gratitude despite hardship. His generosity contrasts with Scrooge’s earlier refusal to give."],
+    ["Tiny Tim · at Christmas dinner", "God bless us every one!", "Tiny Tim’s blessing includes everyone, expressing the fellowship Dickens wants his readers to practise."],
+    ["Scrooge · asking about Tiny Tim", "Tell me if Tiny Tim will live.", "Scrooge’s direct question shows genuine concern. The change in his priorities marks a growing capacity for compassion."],
+    ["The Ghost of Christmas Present · about Tiny Tim", "If these shadows remain unaltered by the Future, the child will die.", "The conditional warning makes Tiny Tim’s future dependent on social change. Dickens urges readers to act rather than accept preventable suffering."],
+    ["Scrooge · about Tiny Tim", "Oh, no, kind Spirit! say he will be spared.", "Scrooge’s plea reveals emotional investment in a child outside his own family, a striking shift from his earlier indifference."],
+    ["Fred · at the family gathering", "He has given us plenty of merriment, I am sure", "Fred’s affectionate remark shows he can find goodwill even in Scrooge’s hostility. His generous attitude contrasts with Scrooge’s earlier cynicism."],
+    ["The Ghost of Christmas Present · showing Ignorance and Want", "This boy is Ignorance. This girl is Want. Beware them both", "The personification turns social problems into vulnerable children. Dickens warns that neglecting poverty and education threatens everyone." ]
+  ],
+  4: [
+    ["Narrator · the last spirit", "The Phantom slowly, gravely, silently approached.", "The three adverbs slow the moment and create dread. The spirit’s silence makes Scrooge confront consequences without reassurance."],
+    ["Scrooge · to the silent spirit", "I am in the presence of the Ghost of Christmas Yet To Come?", "Scrooge asks rather than declares, revealing uncertainty and fear about what lies ahead."],
+    ["Scrooge · to the spirit", "I fear you more than any spectre I have seen.", "The admission shows that the future vision has affected him more deeply than the other spirits’ lessons."],
+    ["Businessman · discussing the dead man", "I don’t know much about it, either way. I only know he’s dead.", "The man’s casual uncertainty makes the dead person seem unimportant. Dickens builds an unsettling picture of a life without meaningful human ties."],
+    ["Businessman · discussing the dead man", "It’s likely to be a very cheap funeral", "The casual remark reduces a death to cost. Dickens mirrors Scrooge’s earlier fixation on money and exposes the loneliness it creates."],
+    ["Old Joe · looking at the stolen belongings", "What do you call this? Bed-curtains!", "The ordinary domestic object becomes evidence of the dead man’s violated privacy. The thieves’ brisk tone makes their lack of respect unsettling."],
+    ["Old Joe · to the woman", "You don’t mean to say you took ’em down, rings and all, with him lying there?", "Joe’s question briefly exposes the indecency of stripping the room while the body remains. The others’ casual replies show how completely Scrooge is despised."],
+    ["Scrooge · begging to see tenderness", "Show me some tenderness connected with a death", "Scrooge desperately seeks evidence that someone cared for the dead man. His request exposes his fear of dying unloved."],
+    ["Scrooge · at the gravestone", "Before I draw nearer to that stone to which you point, answer me one question", "The stone becomes a symbol of the future Scrooge may still change. His question delays recognition while showing his terror."],
+    ["Scrooge · pleading with the spirit", "I will honour Christmas in my heart, and try to keep it all the year. I will live in the Past, the Present, and the Future!", "Scrooge promises a lasting change of values. The three-part vow gathers the spirits’ lessons into a new way of living." ]
+  ],
+  5: [
+    ["Scrooge · waking on Christmas morning", "Yes! and the bedpost was his own.", "The repeated “own” celebrates his return to life and to a future he can shape."],
+    ["Scrooge · waking", "Best and happiest of all, the Time before him was his own, to make amends in!", "The narrator shifts from the past that cannot be changed to a future Scrooge can shape through his actions."],
+    ["Scrooge · discovering the date", "I don’t know what day of the month it is! I don’t know how long I’ve been among the Spirits.", "His confusion gives way to excitement: he has been given time to act on what he has learned."],
+    ["Scrooge · laughing at himself", "I am quite a baby! Never mind! I don’t care. I’d rather be a baby!", "The playful exclamations show Scrooge has recovered a childlike spontaneity and no longer cares about appearing foolish."],
+    ["Scrooge · celebrating", "I am as light as a feather, I am as happy as an angel, I am as merry as a schoolboy.", "The similes convey renewed energy and childlike joy, reversing the cold, heavy image of Scrooge at the beginning."],
+    ["Scrooge · arranging the turkey", "I’ll send it to Bob Cratchit’s!", "His generous action directly addresses the Cratchits’ hardship and repairs his earlier neglect of Bob."],
+    ["Scrooge · greeting people outside", "A merry Christmas to everybody! A happy New Year to all the world!", "The enthusiastic greeting shows his new openness extends beyond his household to the whole community."],
+    ["Scrooge · visiting the charity collector", "Not a farthing less. A great many back-payments are included in it, I assure you.", "Scrooge gives substantial help without bargaining. His generosity reverses the miserly behaviour with which Dickens introduced him."],
+    ["Scrooge · to Bob Cratchit", "I’ll raise your salary, and endeavour to assist your struggling family", "Scrooge uses his wealth to take responsibility for Bob’s family. The practical action proves that his transformation is genuine."],
+    ["Tiny Tim · the novella’s final words", "God bless Us, Every One!", "The closing blessing echoes Tiny Tim’s earlier words and ends the novella with inclusive fellowship."]
+  ]
+};
+
 const wordDefinitions = {
   "misanthropic": "Disliking people and avoiding human company.",
   "stingy": "Unwilling to spend or give money.",
@@ -310,13 +418,54 @@ function choose(option) {
   options.forEach(item => item.setAttribute('aria-selected', String(item === option)));
   title.textContent = option.textContent.trim();
   bank.innerHTML = banks[key];
+  if (key === 'quotes') renderQuoteSet(1);
   decorateWordChips();
   setMenu(false);
 }
 trigger.addEventListener('click', () => setMenu(menu.hidden));
 options.forEach(option => option.addEventListener('click', () => choose(option)));
 document.addEventListener('click', event => { if (!picker.contains(event.target)) setMenu(false); });
-document.addEventListener('keydown', event => { if (event.key === 'Escape' && !menu.hidden) { setMenu(false); trigger.focus(); } });
+function escapeHTML(value) { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
+const staveNames = { 1: ['Stave One', 'The miser'], 2: ['Stave Two', 'The first spirit'], 3: ['Stave Three', 'The second spirit'], 4: ['Stave Four', 'The last spirit'], 5: ['Stave Five', 'The end of it'] };
+function setQuoteMenu(open) {
+  const root = document.getElementById('quote-picker');
+  const button = document.getElementById('quote-picker-trigger');
+  const dropdown = document.getElementById('quote-picker-menu');
+  if (!root || !button || !dropdown) return;
+  root.classList.toggle('open', open);
+  button.setAttribute('aria-expanded', String(open));
+  dropdown.hidden = !open;
+}
+function renderQuoteSet(staveNumber) {
+  const content = document.getElementById('stave-quote-content');
+  const entries = quoteSets[staveNumber] || [];
+  if (!content) return;
+  const [staveTitle, subtitle] = staveNames[staveNumber];
+  const number = String(staveNumber).padStart(2, '0');
+  document.getElementById('quote-picker-number').textContent = number;
+  document.getElementById('quote-picker-current').textContent = staveTitle;
+  document.querySelectorAll('.quote-stave-option').forEach(option => option.setAttribute('aria-selected', String(Number(option.dataset.stave) === staveNumber)));
+  content.innerHTML = entries.map(([speaker, quote, analysis], index) => `<article class="quote-card"><span class="quote-number">${String(index + 1).padStart(2, '0')}</span><p class="quote-meta">${escapeHTML(speaker)}</p><blockquote>“${escapeHTML(quote)}”</blockquote><p>${escapeHTML(analysis)}</p></article>`).join('');
+  const sub = document.querySelector('.quote-picker-current small');
+  if (sub) sub.textContent = subtitle;
+}
+document.addEventListener('click', event => {
+  if (event.target.closest('#quote-picker-trigger')) {
+    const button = document.getElementById('quote-picker-trigger');
+    setQuoteMenu(button.getAttribute('aria-expanded') !== 'true');
+    return;
+  }
+  const option = event.target.closest('.quote-stave-option');
+  if (option) { renderQuoteSet(Number(option.dataset.stave)); setQuoteMenu(false); return; }
+  const root = document.getElementById('quote-picker');
+  if (root && !root.contains(event.target)) setQuoteMenu(false);
+});
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  if (!menu.hidden) { setMenu(false); trigger.focus(); }
+  const quoteTrigger = document.getElementById('quote-picker-trigger');
+  if (quoteTrigger?.getAttribute('aria-expanded') === 'true') { setQuoteMenu(false); quoteTrigger.focus(); }
+});
 showInitial();
 function showInitial() { bank.innerHTML = banks.scrooge; decorateWordChips(); }
 </script>
